@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IPL Player Visualizations</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #eaf0f6;
+            color: #222;
+        }
+        canvas {
+            width: 100% !important;
+            height: 450px !important;
+            margin-bottom: 50px;
+        }
+        .chart-container {
+            padding: 20px;
+        }
+        .btn-toggle {
+            display: block;
+            margin: 20px auto;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <h2 class="text-center mt-4 mb-3">Player Performance Visualizations</h2>
+        <button class="btn btn-primary btn-toggle" onclick="toggleAverage()">Toggle Average View</button>
+        <div id="charts" class="row row-cols-1 row-cols-md-2 row-cols-lg-2 g-4 justify-content-center"></div>
+    </div>
+    <button onclick="predictWinner()">Predict Winner</button>
+<div id="winnerResult" style="margin-top: 10px; font-weight: bold;"></div>
+
+    
+
+    <script>
+        const originalStats = JSON.parse(localStorage.getItem("visualPlayers"));
+        let showingAverage = false;
+        let chartInstances = [];
+
+        const chartTypes = [
+            { type: 'bar', stat: 'Runs' },
+            { type: 'bar', stat: 'Strike Rate' },
+            { type: 'bar', stat: 'Fours' },
+            { type: 'bar', stat: 'Sixes' },
+            { type: 'bar', stat: 'Wickets' },
+            { type: 'bar', stat: 'Economy' },
+            { type: 'radar', stat: ['Runs', 'Wickets', 'Fours', 'Sixes', 'Strike Rate'] },
+            { type: 'line', stat: 'Score' },
+            { type: 'doughnut', stat: 'Category' },
+            { type: 'polarArea', stat: 'Balls Faced' },
+            { type: 'bar', stat: 'Balls Bowled' },
+            { type: 'line', stat: 'Runs Conceded' },
+            { type: 'horizontalBar', stat: 'Score' },
+            { type: 'pie', stat: 'Wickets' },
+            { type: 'barStacked', stat: ['Runs', 'Fours', 'Sixes'] }
+        ];
+
+        function groupBy(arr, key) {
+            return arr.reduce((acc, item) => {
+                const group = item[key];
+                acc[group] = acc[group] || 0;
+                acc[group]++;
+                return acc;
+            }, {});
+        }
+
+        function calculateAverages(stats) {
+            const avg = {};
+            const keys = Object.keys(stats[0]).filter(k => typeof stats[0][k] === 'number');
+            keys.forEach(k => {
+                avg[k] = stats.reduce((sum, p) => sum + p[k], 0) / stats.length;
+            });
+            avg["Player"] = "Average";
+            avg["Category"] = "All";
+            return [avg];
+        }
+
+        function clearCharts() {
+            chartInstances.forEach(chart => chart.destroy());
+            chartInstances = [];
+            document.getElementById("charts").innerHTML = "";
+        }
+
+        function generateCharts(stats) {
+            clearCharts();
+
+            chartTypes.forEach((chart, idx) => {
+                const container = document.createElement("div");
+                container.className = "col chart-container";
+                const canvas = document.createElement("canvas");
+                container.appendChild(canvas);
+                document.getElementById("charts").appendChild(container);
+
+                let labels = stats.map(p => p.Player);
+                let datasets = [];
+
+                if (chart.type === "barStacked") {
+                    chart.stat.forEach(stat => {
+                        datasets.push({
+                            label: stat,
+                            data: stats.map(p => p[stat]),
+                            backgroundColor: `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.7)`
+                        });
+                    });
+                } else if (Array.isArray(chart.stat)) {
+                    chart.stat.forEach(stat => {
+                        datasets.push({
+                            label: stat,
+                            data: stats.map(p => p[stat]),
+                            borderWidth: 2,
+                            fill: true,
+                        });
+                    });
+                } else if (chart.stat === "Category") {
+                    const categoryData = groupBy(stats, "Category");
+                    labels = Object.keys(categoryData);
+                    datasets = [{
+                        label: "Category Count",
+                        data: Object.values(categoryData),
+                        backgroundColor: ['#ff6b6b', '#6bc1ff', '#ffd66b', '#91ff6b'],
+                        borderWidth: 1
+                    }];
+                } else {
+                    datasets = [{
+                        label: chart.stat,
+                        data: stats.map(p => p[chart.stat]),
+                        backgroundColor: `rgba(${Math.random()*255},${Math.random()*255},${Math.random()*255},0.6)`,
+                        borderColor: 'white',
+                        borderWidth: 1,
+                        fill: true
+                    }];
+                }
+
+                let finalType = chart.type;
+                if (chart.type === "horizontalBar") finalType = "bar";
+                if (chart.type === "barStacked") finalType = "bar";
+
+                const newChart = new Chart(canvas.getContext('2d'), {
+                    type: finalType,
+                    data: {
+                        labels: labels,
+                        datasets: datasets
+                    },
+                    options: {
+                        indexAxis: chart.type === "horizontalBar" ? 'y' : 'x',
+                        responsive: true,
+                        plugins: {
+                            legend: { display: true },
+                            datalabels: {
+                                color: '#000',
+                                display: true,
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeOutCubic'
+                        },
+                        scales: chart.type === "barStacked" ? {
+                            x: { stacked: true },
+                            y: { stacked: true }
+                        } : {}
+                    }
+                });
+
+                chartInstances.push(newChart);
+            });
+        }
+
+        function toggleAverage() {
+            showingAverage = !showingAverage;
+            const data = showingAverage ? calculateAverages(originalStats) : originalStats;
+            generateCharts(data);
+        }
+
+        // Initial render
+        generateCharts(originalStats);
+
+        
+    </script>
+    
+        
+        
+</body>
+</html>
