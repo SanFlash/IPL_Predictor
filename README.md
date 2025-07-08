@@ -30,7 +30,7 @@ Installation
 
 #
 Clone the repository:
-git clone https://github.com/YOUR_USERNAME/Super15-IPL-Predictor.git
+git clone https://github.com/SanFlash/Super15-IPL-Predictor.git
 
 cd Super15-IPL-Predictor
 
