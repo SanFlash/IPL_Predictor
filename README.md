@@ -19,42 +19,16 @@ Performance and Accuracy Focused: Engineered for high performance, ensuring quic
 #Technologies Used
 
 (IMPORTANT: This section is a placeholder. Please replace the examples below with the actual programming languages, frameworks, libraries, and databases used in your project.)
-Frontend: HTML, CSS, JavaScript (e.g., React, Angular, Vue.js)
-Backend: Python (e.g., Django, Flask), Node.js (e.g., Express.js)
-Machine Learning Libraries: Scikit-learn, TensorFlow, PyTorch
-Data Analysis: Pandas, NumPy
+Frontend: HTML, CSS, JavaScript 
+Backend: Python (e.g., Sqlalchemy, Flask)
+Machine Learning Libraries: Scikit-learn, RandomForestClassifer, PyTorch
+Data Analysis: Pandas, NumPy, scilab, matplotlib
 Database: PostgreSQL, MongoDB, MySQL
-Deployment: Docker, AWS, Google Cloud Platform, Heroku
-Installation
-(IMPORTANT: This section is a placeholder. Provide clear, step-by-step instructions on how to set up and run your project locally.)
-
-#
-Clone the repository:
-git clone https://github.com/SanFlash/Super15-IPL-Predictor.git
-
-cd Super15-IPL-Predictor
-
-
-Install dependencies:
-# For Python backend
-pip install -r requirements.txt
-
-#
-
-Database Setup:
-Configure your database connection in config.py (or equivalent).
-Run database migrations: python manage.py migrate (for Django) or similar.
-Run the application:
-# For Python backend
-python app.py # or python manage.py runserver
-
-#
+Deployment: I have restricted
 
 # Usage
-(IMPORTANT: This section is a placeholder. Explain how users can interact with your application once it's running.)
+(Flow)
 Once the application is running:
-
-Open your web browser and navigate to http://localhost:3000 (or the port your application is running on).
 
 On the homepage, you will find options to:
 
@@ -69,7 +43,7 @@ Contributing
 #
 We welcome contributions to enhance the Super15 IPL Predictor System! If you'd like to contribute, please follow these steps:
 Fork the repository.
-Create a new branch (git checkout -b feature/YourFeature).
+Create a new branch .
 
 Make your changes and commit them (git commit -m 'Add new feature').
 
